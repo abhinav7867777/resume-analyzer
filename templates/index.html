@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Resume Analyzer — AI Powered</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#07080f;--surface:#0e1020;--glass:rgba(255,255,255,.04);--glass2:rgba(255,255,255,.07);
+  --border:rgba(255,255,255,.08);--border2:rgba(255,255,255,.14);
+  --text:#f0f2ff;--muted:#8892b0;--muted2:#5a6a8a;
+  --purple:#7c3aed;--purple2:#a855f7;--blue:#3b82f6;--cyan:#06b6d4;
+  --green:#10b981;--red:#ef4444;--yellow:#f59e0b;
+  --grad:linear-gradient(135deg,#7c3aed,#3b82f6);
+  --font:'Inter',sans-serif;--mono:'JetBrains Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;line-height:1.6}
+
+/* ── Animated Background ── */
+.bg-orbs{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:.18;animation:orb-float 12s ease-in-out infinite}
+.orb1{width:500px;height:500px;background:radial-gradient(circle,#7c3aed,transparent);top:-100px;left:-100px;animation-delay:0s}
+.orb2{width:400px;height:400px;background:radial-gradient(circle,#3b82f6,transparent);bottom:-80px;right:-80px;animation-delay:-4s}
+.orb3{width:300px;height:300px;background:radial-gradient(circle,#06b6d4,transparent);top:50%;left:50%;transform:translate(-50%,-50%);animation-delay:-8s}
+@keyframes orb-float{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-30px) scale(1.05)}}
+.orb3{animation:orb-float3 10s ease-in-out infinite}
+@keyframes orb-float3{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-55%) scale(1.1)}}
+
+/* ── Header ── */
+header{position:sticky;top:0;z-index:100;background:rgba(7,8,15,.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 32px;height:64px;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:12px}
+.logo-icon{width:38px;height:38px;background:var(--grad);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 0 20px rgba(124,58,237,.4)}
+.logo-name{font-size:16px;font-weight:700;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.logo-tag{font-size:11px;color:var(--muted);margin-top:-2px}
+.status-pill{display:flex;align-items:center;gap:8px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.25);border-radius:20px;padding:6px 14px;font-size:12px;font-weight:600;color:#10b981}
+.pulse-dot{width:7px;height:7px;background:#10b981;border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(16,185,129,.4)}50%{opacity:.6;box-shadow:0 0 0 4px rgba(16,185,129,0)}}
+
+/* ── Layout ── */
+.page{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:36px 24px}
+.hero{text-align:center;padding:40px 0 36px}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(124,58,237,.15);border:1px solid rgba(124,58,237,.3);border-radius:20px;padding:6px 16px;font-size:12px;font-weight:600;color:var(--purple2);margin-bottom:20px}
+.hero h1{font-size:clamp(28px,4vw,48px);font-weight:800;line-height:1.15;margin-bottom:12px}
+.hero h1 span{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:15px;color:var(--muted);max-width:520px;margin:0 auto}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
+@media(max-width:860px){.grid{grid-template-columns:1fr}}
+
+/* ── Glass Card ── */
+.card{background:var(--glass);backdrop-filter:blur(16px);border:1px solid var(--border);border-radius:20px;padding:28px;transition:border-color .3s}
+.card:hover{border-color:var(--border2)}
+.card-head{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);margin-bottom:22px;display:flex;align-items:center;gap:8px}
+.card-head-dot{width:6px;height:6px;border-radius:50%;background:var(--grad)}
+
+/* ── Alert / info ── */
+.info-banner{background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2);border-radius:12px;padding:12px 16px;font-size:13px;color:#93c5fd;margin-bottom:20px;display:flex;gap:10px;align-items:flex-start;line-height:1.6}
+.error-banner{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);border-radius:12px;padding:14px 16px;font-size:13px;color:#fca5a5;margin-bottom:20px;display:flex;gap:8px}
+.ocr-banner{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);border-radius:12px;padding:12px 16px;font-size:13px;color:#fcd34d;margin-bottom:20px;display:flex;gap:8px}
+
+/* ── Form Elements ── */
+.fg{margin-bottom:18px}
+.fg label{display:block;font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px}
+.fg textarea{width:100%;font-family:var(--font);font-size:13px;background:rgba(255,255,255,.04);color:var(--text);border:1px solid var(--border);border-radius:12px;padding:13px 16px;outline:none;resize:vertical;min-height:150px;transition:all .25s;line-height:1.7}
+.fg textarea:focus{border-color:rgba(124,58,237,.5);background:rgba(124,58,237,.05);box-shadow:0 0 0 3px rgba(124,58,237,.1)}
+.fg textarea::placeholder{color:var(--muted2)}
+
+/* ── Upload Zone ── */
+.upload-zone{border:2px dashed rgba(255,255,255,.1);border-radius:16px;padding:30px 20px;text-align:center;cursor:pointer;transition:all .25s;background:rgba(255,255,255,.02);position:relative;overflow:hidden}
+.upload-zone::before{content:'';position:absolute;inset:0;background:var(--grad);opacity:0;transition:opacity .25s}
+.upload-zone:hover{border-color:rgba(124,58,237,.5);background:rgba(124,58,237,.05)}
+.upload-zone:hover::before{opacity:.04}
+.upload-zone.has-file{border-color:rgba(16,185,129,.5);border-style:solid;background:rgba(16,185,129,.05)}
+.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-icon{font-size:38px;margin-bottom:10px;position:relative;z-index:1}
+.upload-title{font-size:15px;font-weight:600;margin-bottom:4px;position:relative;z-index:1}
+.upload-sub{font-size:12px;color:var(--muted);position:relative;z-index:1}
+.upload-name{font-size:13px;font-weight:600;color:var(--green);margin-top:8px;position:relative;z-index:1}
+
+/* ── Submit Button ── */
+.submit-btn{width:100%;background:var(--grad);color:#fff;border:none;border-radius:12px;padding:15px;font-family:var(--font);font-size:15px;font-weight:700;cursor:pointer;transition:all .25s;display:flex;align-items:center;justify-content:center;gap:10px;position:relative;overflow:hidden;margin-top:4px}
+.submit-btn::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.15),transparent);opacity:0;transition:opacity .25s}
+.submit-btn:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(124,58,237,.4)}
+.submit-btn:hover::after{opacity:1}
+.submit-btn:active{transform:none}
+.submit-btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+
+/* ── Steps ── */
+.steps{margin-top:20px;background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:12px;padding:16px 18px}
+.steps-head{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:12px}
+.step{display:flex;align-items:center;gap:12px;padding:5px 0;font-size:13px;color:var(--muted)}
+.step-n{width:22px;height:22px;flex-shrink:0;border-radius:50%;background:var(--grad);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 0 8px rgba(124,58,237,.3)}
+
+/* ── Empty State ── */
+.empty{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty-icon{font-size:56px;margin-bottom:16px;filter:drop-shadow(0 0 20px rgba(124,58,237,.3))}
+.empty-title{font-size:17px;font-weight:700;color:var(--text);margin-bottom:8px}
+.empty-sub{font-size:13px;line-height:1.8}
+.empty-feats{margin-top:24px;display:grid;grid-template-columns:1fr 1fr;gap:10px;text-align:left}
+.feat-item{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:8px}
+.feat-icon{font-size:16px}
+
+/* ── File Badge ── */
+.file-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.25);border-radius:20px;padding:6px 16px;font-size:12px;font-weight:600;color:var(--green);margin-bottom:20px}
+
+/* ── Score Section ── */
+.score-section{text-align:center;padding:28px 0 24px;border-bottom:1px solid var(--border);margin-bottom:24px}
+.ring-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center;margin-bottom:14px}
+.ring-glow{position:absolute;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(124,58,237,.2),transparent 70%);animation:glow-pulse 2s ease-in-out infinite}
+@keyframes glow-pulse{0%,100%{transform:scale(1);opacity:.6}50%{transform:scale(1.1);opacity:1}}
+.ring-svg{transform:rotate(-90deg);position:relative;z-index:1}
+.ring-bg{fill:none;stroke:rgba(255,255,255,.07);stroke-width:10}
+.ring-fill{fill:none;stroke-width:10;stroke-linecap:round;transition:stroke-dashoffset 1.6s cubic-bezier(.34,1.56,.64,1)}
+.score-num{position:absolute;font-size:42px;font-weight:800;letter-spacing:-2px;z-index:2}
+.score-label{font-size:13px;color:var(--muted);margin-bottom:10px}
+.grade-badge{display:inline-block;padding:7px 22px;border-radius:20px;font-size:13px;font-weight:700}
+
+/* ── Result Sections ── */
+.result-raw{font-size:13px;line-height:1.8}
+.sec-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin:22px 0 12px;display:flex;align-items:center;gap:8px}
+.sec-title::after{content:'';flex:1;height:1px;background:var(--border)}
+ul.result-list{list-style:none;display:flex;flex-direction:column;gap:8px}
+.result-list li{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:10px;font-size:13px;line-height:1.6;border:1px solid transparent}
+.result-list li strong{display:block;margin-bottom:2px}
+.missing-item{background:rgba(239,68,68,.07);border-color:rgba(239,68,68,.2)}
+.missing-item::before{content:'✕';color:var(--red);font-weight:700;flex-shrink:0;margin-top:1px}
+.suggest-item{background:rgba(245,158,11,.07);border-color:rgba(245,158,11,.2)}
+.suggest-item::before{content:'→';color:var(--yellow);font-weight:700;flex-shrink:0;margin-top:1px}
+.strength-item{background:rgba(16,185,129,.07);border-color:rgba(16,185,129,.2)}
+.strength-item::before{content:'✓';color:var(--green);font-weight:700;flex-shrink:0;margin-top:1px}
+.summary-box{background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:12px;padding:16px 18px;font-size:13px;line-height:1.9;color:#bfdbfe;margin-top:8px}
+.priority-tag{font-size:10px;border-radius:4px;padding:1px 7px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-left:8px;vertical-align:middle}
+.p-critical{background:rgba(239,68,68,.2);color:#fca5a5}
+.p-important{background:rgba(245,158,11,.2);color:#fcd34d}
+.p-nicetohave{background:rgba(16,185,129,.15);color:#6ee7b7}
+.cat-tag{font-size:10px;background:rgba(124,58,237,.2);border:1px solid rgba(124,58,237,.3);border-radius:4px;padding:1px 7px;font-weight:700;color:var(--purple2);margin-right:8px}
+.example-text{color:var(--muted);font-size:12px;margin-top:4px;font-style:italic}
+
+/* ── Divider ── */
+.divider{height:1px;background:var(--border);margin:20px 0}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px}
+</style>
+</head>
+<body>
+<div class="bg-orbs">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+</div>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">📄</div>
+    <div>
+      <div class="logo-name">Resume Analyzer</div>
+      <div class="logo-tag">AI Powered · Multi-Format · OCR Ready</div>
+    </div>
+  </div>
+  <div class="status-pill">
+    <div class="pulse-dot"></div>
+    OpenRouter AI · Live
+  </div>
+</header>
+
+<div class="page">
+  <div class="hero">
+    <div class="hero-badge">✦ Powered by OpenRouter Multi-Model AI</div>
+    <h1>Analyze Your Resume with <span>AI Precision</span></h1>
+    <p>Upload your resume, paste the job description, and get an instant match score, skill gaps, and actionable improvement tips.</p>
+  </div>
+
+  <div class="grid">
+
+    <!-- LEFT: FORM -->
+    <div class="card">
+      <div class="card-head"><span class="card-head-dot"></span>Upload & Analyze</div>
+
+      <div class="info-banner">
+        🤖 <span>AI tumhara resume job ke against analyze karega — match score, missing skills, aur suggestions milegi!</span>
+      </div>
+
+      {% if error %}
+      <div class="error-banner">❌ {{ error }}</div>
+      {% endif %}
+
+      <form method="POST" enctype="multipart/form-data" id="analyzeForm">
+
+        <div class="fg">
+          <label>Resume — PDF, Scanned PDF or DOCX</label>
+          <div class="upload-zone" id="uploadZone">
+            <input type="file" name="resume" id="resumeFile" accept=".pdf,.docx" required onchange="onFileChange(this)"/>
+            <div class="upload-icon" id="uploadIcon">📎</div>
+            <div class="upload-title" id="uploadTitle">Click or drag file here</div>
+            <div class="upload-sub" id="uploadSub">Digital PDF · Scanned PDF (OCR) · Word DOCX</div>
+            <div class="upload-name" id="uploadName" style="display:none"></div>
+          </div>
+        </div>
+
+        <div class="fg">
+          <label>Job Description</label>
+          <textarea name="job_description" placeholder="Paste the job description here...&#10;&#10;Example:&#10;We're looking for a Python Developer with:&#10;- 2+ years Flask/Django experience&#10;- REST API knowledge&#10;- SQL & Git skills" required>{% if request.form.get('job_description') %}{{ request.form.get('job_description') }}{% endif %}</textarea>
+        </div>
+
+        <button type="submit" class="submit-btn" id="submitBtn">
+          <span id="btnIcon">🔍</span>
+          <span id="btnTxt">Analyze Resume with AI</span>
+        </button>
+      </form>
+
+      <div class="steps">
+        <div class="steps-head">How It Works</div>
+        <div class="step"><span class="step-n">1</span><span>PDF ya DOCX upload karo</span></div>
+        <div class="step"><span class="step-n">2</span><span>Job description paste karo</span></div>
+        <div class="step"><span class="step-n">3</span><span>Digital PDF → PyMuPDF text extract</span></div>
+        <div class="step"><span class="step-n">4</span><span>Scanned PDF → Tesseract OCR se text</span></div>
+        <div class="step"><span class="step-n">5</span><span>DOCX → python-docx se text extract</span></div>
+        <div class="step"><span class="step-n">6</span><span>AI match score, skills, suggestions deta hai</span></div>
+      </div>
+    </div>
+
+    <!-- RIGHT: RESULTS -->
+    <div class="card">
+      <div class="card-head"><span class="card-head-dot"></span>AI Analysis Results</div>
+
+      {% if result %}
+
+        {% if filename %}
+        <div class="file-badge">📄 {{ filename }}</div>
+        {% endif %}
+
+        {% if ocr_warning %}
+        <div class="ocr-banner">🔍 <span><strong>OCR Mode:</strong> {{ ocr_warning }}</span></div>
+        {% endif %}
+
+        <!-- SCORE RING -->
+        {% set score_val = (result.match_score | int) if result.match_score is not none else 0 %}
+        <div class="score-section">
+          <div class="ring-wrap">
+            <div class="ring-glow"></div>
+            <svg class="ring-svg" width="150" height="150" viewBox="0 0 150 150">
+              <circle class="ring-bg" cx="75" cy="75" r="60"/>
+              <circle class="ring-fill" id="ringFill" cx="75" cy="75" r="60"
+                stroke="#7c3aed" stroke-dasharray="377" stroke-dashoffset="377"/>
+            </svg>
+            <span class="score-num" id="scoreNum">{{ score_val }}</span>
+          </div>
+          <div class="score-label">Match Score out of 100</div>
+          <span class="grade-badge" id="gradeBadge"></span>
+          <input type="hidden" id="scoreVal" value="{{ score_val }}"/>
+        </div>
+
+        <div class="result-raw">
+
+          {% if result.strengths %}
+          <div class="sec-title">✅ Strengths</div>
+          <ul class="result-list">
+            {% for s in result.strengths %}
+            <li class="strength-item">{{ s }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+
+          {% if result.missing_skills %}
+          <div class="sec-title">Missing Skills</div>
+          <ul class="result-list">
+            {% for item in result.missing_skills %}
+            <li class="missing-item">
+              <div>
+                <strong>{{ item.skill }}
+                  {% set p = item.priority | lower | replace('-','') %}
+                  {% if item.priority %}
+                  <span class="priority-tag {% if 'critical' in p %}p-critical{% elif 'important' in p %}p-important{% else %}p-nicetohave{% endif %}">{{ item.priority }}</span>
+                  {% endif %}
+                </strong>
+                {% if item.reason %}<span class="example-text">{{ item.reason }}</span>{% endif %}
+              </div>
+            </li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+
+          {% if result.suggestions %}
+          <div class="sec-title">💡 Suggestions</div>
+          <ul class="result-list">
+            {% for item in result.suggestions %}
+            <li class="suggest-item">
+              <div>
+                {% if item.category %}<span class="cat-tag">{{ item.category }}</span>{% endif %}
+                {{ item.suggestion }}
+                {% if item.example %}<div class="example-text">e.g. {{ item.example }}</div>{% endif %}
+              </div>
+            </li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+
+          {% if result.summary %}
+          <div class="sec-title">📋 Summary</div>
+          <div class="summary-box">{{ result.summary }}</div>
+          {% endif %}
+
+        </div>
+
+      {% else %}
+
+        <div class="empty">
+          <div class="empty-icon">🎯</div>
+          <div class="empty-title">Upload Your Resume to Begin</div>
+          <div class="empty-sub">AI tumhara resume analyze karega aur<br/>detailed feedback dega within seconds.</div>
+          <div class="empty-feats">
+            <div class="feat-item"><span class="feat-icon">📊</span>Match Score (0–100)</div>
+            <div class="feat-item"><span class="feat-icon">❌</span>Missing Skills</div>
+            <div class="feat-item"><span class="feat-icon">💡</span>Improvement Tips</div>
+            <div class="feat-item"><span class="feat-icon">✅</span>Your Strengths</div>
+            <div class="feat-item"><span class="feat-icon">📋</span>Overall Summary</div>
+            <div class="feat-item"><span class="feat-icon">🔍</span>Scanned PDF OCR</div>
+          </div>
+        </div>
+
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+
+<script>
+function onFileChange(input) {
+  if (input.files && input.files[0]) {
+    const name = input.files[0].name;
+    const zone = document.getElementById('uploadZone');
+    zone.classList.add('has-file');
+    document.getElementById('uploadIcon').textContent = '✅';
+    document.getElementById('uploadTitle').textContent = 'File ready!';
+    document.getElementById('uploadSub').textContent = '';
+    const nameEl = document.getElementById('uploadName');
+    nameEl.textContent = name;
+    nameEl.style.display = 'block';
+  }
+}
+
+document.getElementById('analyzeForm').addEventListener('submit', function() {
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  document.getElementById('btnTxt').textContent = 'Analyzing…';
+  document.getElementById('btnIcon').textContent = '⏳';
+});
+
+window.addEventListener('load', function() {
+  const el = document.getElementById('scoreVal');
+  if (!el) return;
+  const score = parseInt(el.value, 10);
+  if (isNaN(score)) return;
+
+  const ring = document.getElementById('ringFill');
+  const numEl = document.getElementById('scoreNum');
+  const badge = document.getElementById('gradeBadge');
+  const circ = 377;
+
+  const color = score >= 80 ? '#10b981' : score >= 65 ? '#7c3aed' : score >= 50 ? '#f59e0b' : '#ef4444';
+
+  ring.style.stroke = color;
+  ring.style.strokeDashoffset = circ - (score / 100) * circ;
+  numEl.style.color = color;
+  numEl.style.textShadow = '0 0 20px ' + color + '60';
+
+  // Animated counter
+  numEl.textContent = '0';
+  let cur = 0;
+  const t = setInterval(function() {
+    cur = Math.min(cur + 2, score);
+    numEl.textContent = cur;
+    if (cur >= score) clearInterval(t);
+  }, 18);
+
+  const grades = [
+    {min:80, label:'🏆 Excellent Match', bg:'rgba(16,185,129,.15)', color:'#10b981', border:'rgba(16,185,129,.3)'},
+    {min:65, label:'👍 Good Match',       bg:'rgba(124,58,237,.15)', color:'#a855f7', border:'rgba(124,58,237,.3)'},
+    {min:50, label:'📈 Average Match',    bg:'rgba(245,158,11,.12)', color:'#f59e0b', border:'rgba(245,158,11,.3)'},
+    {min:0,  label:'⚠️ Low Match',        bg:'rgba(239,68,68,.12)', color:'#ef4444', border:'rgba(239,68,68,.3)'},
+  ];
+  const g = grades.find(x => score >= x.min);
+  badge.textContent = g.label;
+  badge.style.cssText = `background:${g.bg};color:${g.color};border:1px solid ${g.border}`;
+});
+</script>
+</body>
+</html>

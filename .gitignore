@@ -1,0 +1,9 @@
+.env
+uploads/
+__pycache__/
+*.pyc
+venv/
+.venv/
+*.pdf
+*.docx
+render.yaml.bak
